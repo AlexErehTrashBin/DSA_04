@@ -1,0 +1,8 @@
+[versions]
+# Define the dependency versions
+junit = "5.9.1"
+
+[libraries]
+# Define the libraries
+junit = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit_jupiter = { module = "org.junit.jupiter:junit-jupiter" }
