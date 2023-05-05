@@ -1,5 +1,9 @@
 package ru.vsu.cs.ereshkin_a_v.task04.smoothsort;
 
+import ru.vsu.cs.ereshkin_a_v.task04.util.SortStatus;
+import ru.vsu.cs.ereshkin_a_v.task04.util.SortStatusType;
+
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.Consumer;
 
@@ -12,7 +16,7 @@ public final class SmoothSort {
 	private static final int[] LEONARDO_NUMS;
 
 	static {
-		// Предзагружаем числа Леонардо и их длину в константы для удобства.
+		// Предварительно загружаем числа Леонардо и их длину в константы для удобства.
 		LEONARDO_NUMS = getLeonardoNumbers();
 		LEONARDO_NUMBERS_LEN = LEONARDO_NUMS.length;
 	}
@@ -21,18 +25,23 @@ public final class SmoothSort {
 	}
 
 	public static <T extends Comparable<T>> void sort(T[] data) {
-		sort(data, Comparator.naturalOrder());
+		sort(data, Comparator.naturalOrder(), (SortStatus<T> ignored) -> {});
 	}
 
-	public static <T> void sort(T[] data, Comparator<T> comparator) {
-		LeonardoHeap heap = makeHeap(data, comparator);
+	public static <T extends Comparable<T>> void sort(T[] data, Consumer<SortStatus<T>> callback) {
+		sort(data, Comparator.naturalOrder(), callback);
+	}
+
+	public static <T> void sort(T[] data, Comparator<T> comparator, Consumer<SortStatus<T>> callback) {
+		LeonardoHeap heap = makeHeap(data, comparator, callback);
+		callback.accept(new SortStatus<>(Arrays.copyOf(data, data.length), SortStatusType.HEAP_BUILT));
 		for (int i = data.length - 1; i > 0; i--) {
-			removeSmallestRoot(data, comparator, i, heap);
+			removeSmallestRoot(data, comparator, i, heap, callback);
 		}
 	}
 
 	private static <T> void siftDown(T[] array, Comparator<T> comparator, int rootPosition, T root,
-	                                 int treeOrder) {
+	                                 int treeOrder, Consumer<SortStatus<T>> callback) {
 		// Погружаем корневой узел вниз по дереву,
 		// пока не дойдём до дерева без дочерних узлов (дерево порядка 0 или 1)
 		while (treeOrder > 1) {
@@ -64,11 +73,13 @@ public final class SmoothSort {
 			array[rootPosition] = child;
 			rootPosition = childPosition;
 			treeOrder = childOrder;
+
+			callback.accept(new SortStatus<>(Arrays.copyOf(array, array.length), SortStatusType.ELEMENT_SIFTED_DOWN));
 		}
 	}
 
 	private static <T> void repairRoots(T[] array, Comparator<T> comparator,
-	                                    int last, long structureTrees, int structureOffset) {
+	                                    int last, long structureTrees, int structureOffset, Consumer<SortStatus<T>> callback) {
 		int rootPosition = last;
 		T currentRoot = array[rootPosition];
 		while (rootPosition >= LEONARDO_NUMS[structureOffset]) {
@@ -116,7 +127,8 @@ public final class SmoothSort {
 					// if the root is not right, swap and then sift-down
 					array[rootPosition] = largest;
 					array[largestPosition] = currentRoot;
-					siftDown(array, comparator, largestPosition, currentRoot, largestOrder);
+					callback.accept(new SortStatus<>(Arrays.copyOf(array, array.length), SortStatusType.ELEMENTS_SWAPPED));
+					siftDown(array, comparator, largestPosition, currentRoot, largestOrder, callback);
 				}
 				return;
 			}
@@ -130,33 +142,36 @@ public final class SmoothSort {
 			int shift = Long.numberOfTrailingZeros(structureTrees);
 			structureTrees >>= shift;
 			structureOffset += shift;
+
+			callback.accept(new SortStatus<>(Arrays.copyOf(array, array.length), SortStatusType.TREES_REPAIRED));
 		}
 
 		// shuffle the root down if necessary to maintain heap invariant for this tree
-		siftDown(array, comparator, rootPosition, currentRoot, structureOffset);
+		siftDown(array, comparator, rootPosition, currentRoot, structureOffset, callback);
 	}
 
 	private static <T> void addToHeap(T[] array, Comparator<T> comp, int last,
-	                                  LeonardoHeap heap) {
+	                                  LeonardoHeap heap, Consumer<SortStatus<T>> callback) {
 		heap.addTree();
-		repairAfterAdd(array, comp, last, heap);
+		repairAfterAdd(array, comp, last, heap, callback);
 	}
 
 	private static <T> void repairAfterAdd(T[] array, Comparator<T> comp,
-	                                       int last, LeonardoHeap heap) {
+	                                       int last, LeonardoHeap heap, Consumer<SortStatus<T>> callback) {
 		int len = array.length;
+		callback.accept(new SortStatus<>(Arrays.copyOf(array, array.length), SortStatusType.START_FIX_AFTER_ADD));
 		switch (heap.offset) {
 			case 0 -> {
 				// if the last heap has order 0, we only rectify if it's the very last element in list
 				if (last == len - 1) {
-					repairRoots(array, comp, last, heap.trees, heap.offset);
+					repairRoots(array, comp, last, heap.trees, heap.offset, callback);
 				}
 			}
 			case 1 -> {
 				// if the last heap has order 1, we can rectify if it's the last element in the list or
 				// if it's the next-to-last element in list and won't be merged when we addTree last element
 				if (last == len - 1 || (last == len - 2 && (heap.trees & 2) == 0)) {
-					repairRoots(array, comp, last, heap.trees, heap.offset);
+					repairRoots(array, comp, last, heap.trees, heap.offset, callback);
 				}
 			}
 			default -> {
@@ -165,24 +180,24 @@ public final class SmoothSort {
 				int elementsRemaining = len - 1 - last;
 				int elementsNeededForNextOrderTree = LEONARDO_NUMS[heap.offset - 1] + 1;
 				if (elementsRemaining < elementsNeededForNextOrderTree) {
-					repairRoots(array, comp, last, heap.trees, heap.offset);
+					repairRoots(array, comp, last, heap.trees, heap.offset, callback);
 				} else {
-					siftDown(array, comp, last, array[last], heap.offset);
+					siftDown(array, comp, last, array[last], heap.offset, callback);
 				}
 			}
 		}
 	}
 
-	private static <T> LeonardoHeap makeHeap(T[] array, Comparator<T> comp) {
+	private static <T> LeonardoHeap makeHeap(T[] array, Comparator<T> comp, Consumer<SortStatus<T>> callback) {
 		LeonardoHeap structure = new LeonardoHeap();
 		for (int i = 0, len = array.length; i < len; i++) {
-			addToHeap(array, comp, i, structure);
+			addToHeap(array, comp, i, structure, callback);
 		}
 		return structure;
 	}
 
 	private static <T> void removeSmallestRoot(T[] array, Comparator<T> comp, int last,
-	                                           LeonardoHeap structure) {
+	                                           LeonardoHeap structure, Consumer<SortStatus<T>> callback) {
 		// smallest heap is order 0 or 1, can just drop it
 		if (structure.offset <= 1) {
 			structure.trees = structure.trees & ~1;
@@ -203,9 +218,10 @@ public final class SmoothSort {
 		// right child's order is root's order - 2 (left child is root's order - 1)
 		// we've already subtracted 2 from root's order
 		int leftRoot = rightRoot - LEONARDO_NUMS[structure.offset];
+		callback.accept(new SortStatus<>(Arrays.copyOf(array, array.length), SortStatusType.ELEMENT_REMOVED));
 		// repair roots up to the left child
-		repairRoots(array, comp, leftRoot, structure.trees >> 1, structure.offset + 1);
+		repairRoots(array, comp, leftRoot, structure.trees >> 1, structure.offset + 1, callback);
 		// and then including the right child
-		repairRoots(array, comp, rightRoot, structure.trees, structure.offset);
+		repairRoots(array, comp, rightRoot, structure.trees, structure.offset, callback);
 	}
 }
