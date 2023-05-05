@@ -3,7 +3,6 @@ package ru.vsu.cs.util;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Insets;
@@ -52,6 +51,7 @@ import javax.swing.table.TableModel;
  *
  * @see <a href="http://java-online.ru/swing-jtable.xhtml">http://java-online.ru/swing-jtable.xhtml</a>
  */
+@SuppressWarnings("unused")
 public class JTableUtils {
 
     public static class JTableUtilsException extends ParseException {
@@ -62,7 +62,7 @@ public class JTableUtils {
 
 
     public static final int DEFAULT_GAP = 6;
-    public static final int DEFAULT_PLUSMINUS_BUTTONS_SIZE = 22;
+    public static final int DEFAULT_PLUS_MINUS_BUTTONS_SIZE = 22;
     public static final int DEFAULT_COLUMN_WIDTH = 40;
     public static final int DEFAULT_ROW_HEADER_WIDTH = 40;
     private static final Color TRANSPARENT = new Color(0, 0, 0, 0);
@@ -80,7 +80,7 @@ public class JTableUtils {
         } catch (ParseException e) {
             throw new NumberFormatException(e.getMessage());
         }
-    };
+    }
 
 
     private static <T extends JComponent> T setFixedSize(T comp, int width, int height) {
@@ -112,19 +112,18 @@ public class JTableUtils {
         return columnWidth;
     }
 
-    private static void recalcJTableSize(JTable table) {
+    private static void recalculateJTableSize(JTable table) {
         int width = getColumnWidth(table) * table.getColumnCount();
         int height = 0, rowCount = table.getRowCount();
         for (int r = 0; r < rowCount; r++)
             height += table.getRowHeight(height);
         setFixedSize(table, width, height);
 
-        if (table.getParent() instanceof JViewport && table.getParent().getParent() instanceof JScrollPane) {
-            JScrollPane scrollPane = (JScrollPane) table.getParent().getParent();
+        if (table.getParent() instanceof JViewport && table.getParent().getParent() instanceof JScrollPane scrollPane) {
             if (scrollPane.getRowHeader() != null) {
                 Component rowHeaderView = scrollPane.getRowHeader().getView();
                 if (rowHeaderView instanceof JList) {
-                    ((JList) rowHeaderView).setFixedCellHeight(table.getRowHeight());
+                    ((JList<?>) rowHeaderView).setFixedCellHeight(table.getRowHeight());
                 }
                 scrollPane.getRowHeader().repaint();
             }
@@ -215,10 +214,9 @@ public class JTableUtils {
         };
         table.setModel(tableModel);
         tableColumnWidths.put(table, defaultColWidth);
-        recalcJTableSize(table);
+        recalculateJTableSize(table);
 
-        if (table.getParent() instanceof JViewport && table.getParent().getParent() instanceof JScrollPane) {
-            JScrollPane scrollPane = (JScrollPane) table.getParent().getParent();
+        if (table.getParent() instanceof JViewport && table.getParent().getParent() instanceof JScrollPane scrollPane) {
             if (changeRowsCountButtons || changeColsCountButtons) {
                 List<Component> linkedComponents = new ArrayList<>();
 
@@ -237,11 +235,11 @@ public class JTableUtils {
                     if (changeRowsCountButtons) {
                         topPanel.add(setFixedSize(new Box.Filler(null, null, null), changeButtonsSize + changeButtonsMargin, changeButtonsSize));
                     }
-                    JButton minusButton = createPlusMinusButton("\u2013", changeButtonsSize);
+                    JButton minusButton = createPlusMinusButton("–", changeButtonsSize);
                     minusButton.setName(table.getName() + "-minusColumnButton");
                     minusButton.addActionListener((ActionEvent evt) -> {
                         tableModel.setColumnCount(tableModel.getColumnCount() > 0 ? tableModel.getColumnCount() - 1 : 0);
-                        recalcJTableSize(table);
+                        recalculateJTableSize(table);
                     });
                     topPanel.add(minusButton);
                     linkedComponents.add(minusButton);
@@ -250,7 +248,7 @@ public class JTableUtils {
                     plusButton.setName(table.getName() + "-plusColumnButton");
                     plusButton.addActionListener((ActionEvent evt) -> {
                         tableModel.addColumn(String.format("[%d]", tableModel.getColumnCount()));
-                        recalcJTableSize(table);
+                        recalculateJTableSize(table);
                     });
                     topPanel.add(plusButton);
                     linkedComponents.add(plusButton);
@@ -260,12 +258,12 @@ public class JTableUtils {
                 if (changeRowsCountButtons) {
                     JPanel leftPanel = setFixedSize(new JPanel(flowLayout), changeButtonsSize, changeButtonsSize);
                     leftPanel.setBackground(TRANSPARENT);
-                    JButton minusButton = createPlusMinusButton("\u2013", changeButtonsSize);
+                    JButton minusButton = createPlusMinusButton("–", changeButtonsSize);
                     minusButton.setName(table.getName() + "-minusRowButton");
                     minusButton.addActionListener((ActionEvent evt) -> {
                         if (tableModel.getRowCount() > 0) {
                             tableModel.removeRow(tableModel.getRowCount() - 1);
-                            recalcJTableSize(table);
+                            recalculateJTableSize(table);
                         }
                     });
                     leftPanel.add(minusButton);
@@ -275,7 +273,7 @@ public class JTableUtils {
                     plusButton.setName(table.getName() + "-plusRowButton");
                     plusButton.addActionListener((ActionEvent evt) -> {
                         tableModel.setRowCount(tableModel.getRowCount() + 1);
-                        recalcJTableSize(table);
+                        recalculateJTableSize(table);
                     });
                     leftPanel.add(plusButton);
                     linkedComponents.add(plusButton);
@@ -313,8 +311,8 @@ public class JTableUtils {
                 scrollPane = newScrollPane;
             }
 
-            // привязываем отбработчик событий, который снимает выделение,
-            // а также обработчик событий, который будет изменять размер таблицы при изменении высоты строки
+            // привязываем обработчик событий, который снимает выделение,
+            // и обработчик событий, который будет изменять размер таблицы при изменении высоты строки
             table.addPropertyChangeListener((PropertyChangeEvent evt) -> {
                 if ("enabled".equals(evt.getPropertyName())) {
                     boolean enabled = (boolean) evt.getNewValue();
@@ -323,7 +321,7 @@ public class JTableUtils {
                     }
                 }
                 else if ("rowHeight".equals(evt.getPropertyName())) {
-                    recalcJTableSize(table);
+                    recalculateJTableSize(table);
                 }
             });
 
@@ -347,8 +345,7 @@ public class JTableUtils {
                 @Override
                 public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                     Component comp = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                    if (comp instanceof JLabel) {
-                        JLabel label = (JLabel) comp;
+                    if (comp instanceof JLabel label) {
                         label.setHorizontalAlignment((value == null || value.toString().matches("|-?\\d+")) ? RIGHT : LEFT);
                         label.setBorder(DEFAULT_RENDERER_CELL_BORDER);
                     }
@@ -361,8 +358,7 @@ public class JTableUtils {
                 @Override
                 public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
                     Component comp = super.getTableCellEditorComponent(table, value, isSelected, row, column);
-                    if (comp instanceof JTextField) {
-                        JTextField textField = (JTextField) comp;
+                    if (comp instanceof JTextField textField) {
                         textField.setHorizontalAlignment((value == null || value.toString().matches("|-?\\d+")) ? SwingConstants.RIGHT : SwingConstants.LEFT);
                         textField.setBorder(DEFAULT_EDITOR_CELL_BORDER);
                         textField.selectAll();  // чтобы при начале печати перезаписывать текст
@@ -379,7 +375,7 @@ public class JTableUtils {
 
     /**
      * Аналогичен {@link #initJTableForArray(javax.swing.JTable, int, boolean, boolean, boolean, boolean, int, int) }.
-     * {@code changeButtonsSize} принимает значение {@link #DEFAULT_PLUSMINUS_BUTTONS_SIZE}.
+     * {@code changeButtonsSize} принимает значение {@link #DEFAULT_PLUS_MINUS_BUTTONS_SIZE}.
      * {@code changeButtonsMargin} принимает значение {@link #DEFAULT_GAP}.
      *
      * @see #initJTableForArray(javax.swing.JTable, int, boolean, boolean, boolean, boolean, int, int)
@@ -397,28 +393,27 @@ public class JTableUtils {
     }
 
     /**
-     * Изменение размеров Jtable
+     * Изменение размеров JTable
      * @param table компонент JTable
      * @param rowCount новое кол-во строк (меньше или равно 0 - не менять)
      * @param colCount новое кол-во столбцов (меньше или равно 0 - не менять)
-     * @param colCount высота строки (меньше или равно 0 - не менять)
+     * @param rowHeight высота строки (меньше или равно 0 - не менять)
      * @param columnWidth ширина столбца (меньше или равно 0 - не менять)
      */
     public static void resizeJTable(JTable table, int rowCount, int colCount, int rowHeight, int columnWidth) {
-        if (!(table.getModel() instanceof DefaultTableModel)) {
+        if (!(table.getModel() instanceof DefaultTableModel tableModel)) {
             return;
         }
-        DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 
         tableColumnWidths.put(table, (columnWidth > 0) ? columnWidth : getColumnWidth(table));
         table.setRowHeight((rowHeight > 0) ? rowHeight : table.getRowHeight());
         tableModel.setRowCount((rowCount > 0) ? rowCount : table.getRowCount());
         tableModel.setColumnCount((colCount > 0) ? colCount : table.getColumnCount());
-        recalcJTableSize(table);
+        recalculateJTableSize(table);
     }
 
     /**
-     * Изменение размеров Jtable (ширина столбцов и высота строк не меняется)
+     * Изменение размеров JTable (ширина столбцов и высота строк не меняется)
      * @param table компонент JTable
      * @param rowCount новое кол-во строк
      * @param colCount новое кол-во столбцов
@@ -428,7 +423,7 @@ public class JTableUtils {
     }
 
     /**
-     * Изменение размеров ячеек Jtable
+     * Изменение размеров ячеек JTable
      * @param table компонент JTable
      * @param rowHeight высота строки
      * @param columnWidth ширина столбца
@@ -442,12 +437,11 @@ public class JTableUtils {
      * @param width Ширина
      */
     public static void setRowsHeaderColumnWidth(JTable table, int width) {
-        if (table.getParent() instanceof JViewport && table.getParent().getParent() instanceof JScrollPane) {
-            JScrollPane scrollPane = (JScrollPane) table.getParent().getParent();
+        if (table.getParent() instanceof JViewport && table.getParent().getParent() instanceof JScrollPane scrollPane) {
             if (scrollPane.getRowHeader() != null) {
                 Component rowHeaderView = scrollPane.getRowHeader().getView();
                 if (rowHeaderView instanceof JList) {
-                    ((JList) rowHeaderView).setFixedCellWidth(width);
+                    ((JList<?>) rowHeaderView).setFixedCellWidth(width);
                 }
                 scrollPane.getRowHeader().repaint();
             }
@@ -462,10 +456,9 @@ public class JTableUtils {
         if (!array.getClass().isArray()) {
             return;
         }
-        if (!(table.getModel() instanceof DefaultTableModel)) {
+        if (!(table.getModel() instanceof DefaultTableModel tableModel)) {
             return;
         }
-        DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 
         tableColumnWidths.put(table, getColumnWidth(table));
 
@@ -502,7 +495,7 @@ public class JTableUtils {
                 }
             }
         }
-        recalcJTableSize(table);
+        recalculateJTableSize(table);
     }
 
     /**
@@ -582,7 +575,7 @@ public class JTableUtils {
         T[][] matrix = (T[][]) Array.newInstance(clazz, rowCount, colCount);
         for (int r = 0; r < rowCount; r++) {
             for (int c = 0; c < colCount; c++) {
-                T value = null;
+                T value;
                 Object obj = tableModel.getValueAt(r, c);
                 if (obj == null || obj instanceof String && ((String) obj).trim().length() == 0) {
                     if (errorIfEmptyCell) {
@@ -607,7 +600,7 @@ public class JTableUtils {
     ) {
         try {
             return readMatrixFromJTable(table, clazz, converter, false, emptyCellValue);
-        } catch (JTableUtilsException impossible) {
+        } catch (JTableUtilsException ignored) {
         }
         return null;
     }
@@ -640,7 +633,7 @@ public class JTableUtils {
     ) {
         try {
             return readArrayFromJTable(table, clazz, converter, false, emptyCellValue);
-        } catch (JTableUtilsException impossible) {
+        } catch (JTableUtilsException ignored) {
         }
         return null;
     }
@@ -657,11 +650,11 @@ public class JTableUtils {
     /**
      * Чтение данных из JTable в двухмерный массив Integer[][]
      */
-    public static int[][] readIntMatrixFromJTable(JTable table) throws ParseException {
+    public static int[][] readIntMatrixFromJTable(JTable table) {
         try {
             Integer[][] matrix = readMatrixFromJTable(table, Integer.class, Integer::parseInt, false, 0);
-            return (int[][]) Arrays.stream(matrix).map(ArrayUtils::toPrimitive).toArray((n) -> new int[n][]);
-        } catch (JTableUtilsException impossible) {
+            return Arrays.stream(matrix).map(ArrayUtils::toPrimitive).toArray(int[][]::new);
+        } catch (JTableUtilsException ignored) {
         }
         return null;
     }
@@ -669,10 +662,10 @@ public class JTableUtils {
     /**
      * Чтение данных из JTable в одномерный массив String[]
      */
-    public static int[] readIntArrayFromJTable(JTable table) throws ParseException {
+    public static int[] readIntArrayFromJTable(JTable table) {
         try {
             return ArrayUtils.toPrimitive(readArrayFromJTable(table, Integer.class, Integer::parseInt, false, 0));
-        } catch (JTableUtilsException impossible) {
+        } catch (JTableUtilsException ignored) {
         }
         return null;
     }
@@ -680,11 +673,11 @@ public class JTableUtils {
     /**
      * Чтение данных из JTable в двухмерный массив Integer[][]
      */
-    public static double[][] readDoubleMatrixFromJTable(JTable table) throws ParseException {
+    public static double[][] readDoubleMatrixFromJTable(JTable table) {
         try {
             Double[][] matrix = readMatrixFromJTable(table, Double.class, JTableUtils::parseDouble, false, 0.0);
-            return (double[][]) Arrays.stream(matrix).map(ArrayUtils::toPrimitive).toArray((n) -> new double[n][]);
-        } catch (JTableUtilsException impossible) {
+            return Arrays.stream(matrix).map(ArrayUtils::toPrimitive).toArray(double[][]::new);
+        } catch (JTableUtilsException ignored) {
         }
         return null;
     }
@@ -692,10 +685,10 @@ public class JTableUtils {
     /**
      * Чтение данных из JTable в одномерный массив Integer[]
      */
-    public static double[] readDoubleArrayFromJTable(JTable table) throws ParseException {
+    public static double[] readDoubleArrayFromJTable(JTable table) {
         try {
             return ArrayUtils.toPrimitive(readArrayFromJTable(table, Double.class, JTableUtils::parseDouble, false, 0.0));
-        } catch (JTableUtilsException impossible) {
+        } catch (JTableUtilsException ignored) {
         }
         return null;
     }
@@ -706,7 +699,7 @@ public class JTableUtils {
     public static String[][] readStringMatrixFromJTable(JTable table) {
         try {
             return readMatrixFromJTable(table, String.class, (s) -> s, false, "");
-        } catch (JTableUtilsException impossible) {
+        } catch (JTableUtilsException ignored) {
         }
         return null;
     }
@@ -717,7 +710,7 @@ public class JTableUtils {
     public static String[] readStringArrayFromJTable(JTable table) {
         try {
             return readArrayFromJTable(table, String.class, (s) -> s, false, "");
-        } catch (JTableUtilsException impossible) {
+        } catch (JTableUtilsException ignored) {
         }
         return null;
     }

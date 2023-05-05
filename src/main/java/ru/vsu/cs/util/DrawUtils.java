@@ -7,7 +7,7 @@ import java.awt.Rectangle;
 import java.awt.font.FontRenderContext;
 import java.awt.geom.Rectangle2D;
 
-
+@SuppressWarnings("unused")
 public class DrawUtils {
     /**
      * Рисование строки в центре прямоугольника (x, y, width, height).

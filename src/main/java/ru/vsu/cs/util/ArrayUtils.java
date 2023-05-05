@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 
+@SuppressWarnings("unused")
 public class ArrayUtils {
     private static final Random RND = new Random();
 
@@ -32,7 +33,6 @@ public class ArrayUtils {
         }
         return result;
     }
-    @SuppressWarnings("unused")
     public static char[] toPrimitive(Character[] arr) {
         if (arr == null) {
             return null;
@@ -44,7 +44,6 @@ public class ArrayUtils {
         }
         return result;
     }
-    @SuppressWarnings("unused")
     public static boolean[] toPrimitive(Boolean[] arr) {
         if (arr == null) {
             return null;
@@ -56,7 +55,6 @@ public class ArrayUtils {
         }
         return result;
     }
-    @SuppressWarnings("unused")
     public static Integer[] toObject(int[] arr) {
         if (arr == null) {
             return null;
@@ -68,7 +66,6 @@ public class ArrayUtils {
         }
         return result;
     }
-    @SuppressWarnings("unused")
     public static Double[] toObject(double[] arr) {
         if (arr == null) {
             return null;
@@ -80,7 +77,6 @@ public class ArrayUtils {
         }
         return result;
     }
-    @SuppressWarnings("unused")
     public static Character[] toObject(char[] arr) {
         if (arr == null) {
             return null;
@@ -92,7 +88,6 @@ public class ArrayUtils {
         }
         return result;
     }
-    @SuppressWarnings("unused")
     public static Boolean[] toObject(boolean[] arr) {
         if (arr == null) {
             return null;
@@ -104,7 +99,6 @@ public class ArrayUtils {
         }
         return result;
     }
-    @SuppressWarnings("unused")
     public static int[] toIntArray(String str) {
         Scanner scanner = new Scanner(str);
         scanner.useLocale(Locale.ROOT);
@@ -119,7 +113,6 @@ public class ArrayUtils {
         // Integer[] -> int[]
         return ArrayUtils.toPrimitive(arr);
     }
-    @SuppressWarnings("unused")
     public static double[] toDoubleArray(String str) {
         Scanner scanner = new Scanner(str);
         scanner.useLocale(Locale.ROOT);
@@ -135,7 +128,6 @@ public class ArrayUtils {
         return ArrayUtils.toPrimitive(arr);
     }
 
-    @SuppressWarnings("unused")
     public static String toString(int[] arr, String itemFormat) {
         if (arr == null) {
             return null;
@@ -152,11 +144,9 @@ public class ArrayUtils {
         }
         return sb.toString();
     }
-    @SuppressWarnings("unused")
     public static String toString(int[] arr) {
         return toString(arr, null);
     }
-    @SuppressWarnings("unused")
     public static String toString(double[] arr, String itemFormat) {
         if (arr == null) {
             return null;
@@ -173,12 +163,10 @@ public class ArrayUtils {
         }
         return sb.toString();
     }
-    @SuppressWarnings("unused")
     public static String toString(double[] arr) {
         return toString(arr, null);
     }
 
-    @SuppressWarnings("unused")
     public static int[] readIntArrayFromConsole(String arrName) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -196,11 +184,9 @@ public class ArrayUtils {
             }
         }
     }
-    @SuppressWarnings("unused")
     public static int[] readIntArrayFromConsole() {
         return readIntArrayFromConsole(null);
     }
-    @SuppressWarnings("unused")
     public static double[] readDoubleArrayFromConsole(String arrName) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -219,7 +205,6 @@ public class ArrayUtils {
             }
         }
     }
-    @SuppressWarnings("unused")
     public static double[] readDoubleArrayFromConsole() {
         return readDoubleArrayFromConsole(null);
     }
@@ -265,7 +250,7 @@ public class ArrayUtils {
     /**
      * Чтение двухмерного массива int[][] с консоли;
      * checkMatrix - задает режим, при котором,
-     * если строки содержат разное кол-во элементот, то
+     * если строки содержат разное кол-во элементов, то
      * это считается ошибкой и предлагается повторить ввод
      */
     public static int[][] readIntArray2FromConsole(String arrName, boolean checkMatrix) {
@@ -295,7 +280,7 @@ public class ArrayUtils {
     /**
      * Чтение двухмерного массива int[][] с консоли;
      * checkMatrix - задает режим, при котором,
-     * если строки содержат разное кол-во элементот, то
+     * если строки содержат разное кол-во элементов, то
      * это считается ошибкой и предлагается повторить ввод
      */
     public static int[][] readIntArray2FromConsole(boolean checkMatrix) {
@@ -305,17 +290,16 @@ public class ArrayUtils {
     /**
      * Чтение двухмерного массива int[][] с консоли;
      * checkMatrix - задает режим, при котором,
-     * если строки содержат разное кол-во элементот, то
+     * если строки содержат разное кол-во элементов, то
      * это считается ошибкой и предлагается повторить ввод
      */
-    @SuppressWarnings("unused")
     public static int[][] readIntArray2FromConsole() {
         return readIntArray2FromConsole(false);
     }
 
     /* Чтение двухмерного массива double[][] с консоли;
      * checkMatrix - задает режим, при котором,
-     * если строки содержат разное кол-во элементот, то
+     * если строки содержат разное кол-во элементов, то
      * это считается ошибкой и предлагается повторить ввод
      */
     public static double[][] readDoubleArray2FromConsole(String arrName, boolean checkMatrix) {
@@ -344,7 +328,7 @@ public class ArrayUtils {
 
     /* Чтение двухмерного массива int[][] с консоли;
      * checkMatrix - задает режим, при котором,
-     * если строки содержат разное кол-во элементот, то
+     * если строки содержат разное кол-во элементов, то
      * это считается ошибкой и предлагается повторить ввод
      */
     public static double[][] readDoubleArray2FromConsole(boolean checkMatrix) {
@@ -353,10 +337,9 @@ public class ArrayUtils {
 
     /** Чтение двухмерного массива int[][] с консоли;
      * checkMatrix - задает режим, при котором,
-     * если строки содержат разное кол-во элементот, то
+     * если строки содержат разное кол-во элементов, то
      * это считается ошибкой и предлагается повторить ввод
      */
-    @SuppressWarnings("unused")
     public static double[][] readDoubleArray2FromConsole() {
         return readDoubleArray2FromConsole(false);
     }
@@ -409,7 +392,6 @@ public class ArrayUtils {
     /**
      * Чтение массива int[] из первой строки текстового файла
      */
-    @SuppressWarnings("unused")
     public static int[] readIntArrayFromFile(String fileName) {
         try {
             return toIntArray(readLinesFromFile(fileName)[0]);
@@ -422,7 +404,6 @@ public class ArrayUtils {
     /**
      * Чтение массива double[] из первой строки текстового файла
      */
-    @SuppressWarnings("unused")
     public static double[] readDoubleArrayFromFile(String fileName) {
         try {
             return toDoubleArray(readLinesFromFile(fileName)[0]);
@@ -435,7 +416,6 @@ public class ArrayUtils {
     /**
      * Чтение двухмерного массива из текстового файла
      */
-    @SuppressWarnings("unused")
     public static int[][] readIntArray2FromFile(String fileName) {
         try {
             return toIntArray2(readLinesFromFile(fileName));
@@ -445,7 +425,6 @@ public class ArrayUtils {
         }
     }
 
-    @SuppressWarnings("unused")
     public static double[][] readDoubleArray2FromFile(String fileName) {
         try {
             return toDoubleArray2(readLinesFromFile(fileName));
@@ -462,7 +441,6 @@ public class ArrayUtils {
         }
     }
 
-    @SuppressWarnings("unused")
     public static void writeArrayToFile(String fileName, int[] arr)
             throws FileNotFoundException {
         writeArrayToFile(fileName, arr, null);
@@ -475,7 +453,6 @@ public class ArrayUtils {
         }
     }
 
-    @SuppressWarnings("unused")
     public static void writeArrayToFile(String fileName, double[] arr)
             throws FileNotFoundException {
         writeArrayToFile(fileName, arr, null);
@@ -488,7 +465,6 @@ public class ArrayUtils {
         }
     }
 
-    @SuppressWarnings("unused")
     public static void writeArrayToFile(String fileName, int[][] arr2)
             throws FileNotFoundException {
         writeArrayToFile(fileName, arr2, null);
@@ -501,14 +477,13 @@ public class ArrayUtils {
         }
     }
 
-    @SuppressWarnings("unused")
     public static void writeArrayToFile(String fileName, double[][] arr2)
             throws FileNotFoundException {
         writeArrayToFile(fileName, arr2, null);
     }
 
     /**
-     * Cоздание одномерного массива целых чисел, заполненного случайными числами
+     * Создание одномерного массива целых чисел, заполненного случайными числами
      * @param length Кол-во элементов в массиве
      * @param minValue Минимальное значение для случайных чисел (включая)
      * @param maxValue Максимальное значение (не включая)
@@ -524,13 +499,12 @@ public class ArrayUtils {
     /**
      * @see #createRandomIntArray(int, int, int)
      */
-    @SuppressWarnings("unused")
     public static int[] createRandomIntArray(int length, int maxValue) {
         return createRandomIntArray(length, 0, maxValue);
     }
 
     /**
-     * Cоздание двухмерного массива целых чисел, заполненного случайными числами
+     * Создание двухмерного массива целых чисел, заполненного случайными числами
      * @param rowCount Кол-во сток в двумерном массиве
      * @param colCount Кол-во столбцов (элементов в каждой строке)
      * @param minValue Минимальное значение для случайных чисел (включая)
@@ -547,7 +521,6 @@ public class ArrayUtils {
     /**
      * @see #createRandomIntMatrix(int, int, int, int)
      */
-    @SuppressWarnings("unused")
     public static int[][] createRandomIntMatrix(int rowCount, int colCount, int maxValue) {
         return createRandomIntMatrix(rowCount, colCount, 0, maxValue);
     }
