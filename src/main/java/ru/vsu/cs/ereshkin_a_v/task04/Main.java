@@ -1,13 +1,20 @@
 package ru.vsu.cs.ereshkin_a_v.task04;
 
-import ru.vsu.cs.ereshkin_a_v.task04.smoothsort.SmoothSort;
+import ru.vsu.cs.ereshkin_a_v.task04.gui.FrameMain;
+import ru.vsu.cs.ereshkin_a_v.task04.heapsort.HeapSort;
 import ru.vsu.cs.util.ArrayUtils;
+import ru.vsu.cs.util.SwingUtils;
+
+import java.util.Locale;
 
 public class Main {
 	public static void main(String[] args) {
-		Integer[] ints = new Integer[]{7, 9, 2, 4, 8, 7, 2, 5, 9, 3};
+		SwingUtils.setLookAndFeelByName("Windows");
+		Locale.setDefault(Locale.ROOT);
+		//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		SwingUtils.setDefaultFont("Microsoft Sans Serif", 18);
 
-		SmoothSort.sort(ints);
-		System.out.println(ArrayUtils.toString(ArrayUtils.toPrimitive(ints)));
+		/* Create and display the form */
+		java.awt.EventQueue.invokeLater(() -> new FrameMain().setVisible(true));
 	}
 }
